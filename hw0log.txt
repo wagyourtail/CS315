@@ -1,0 +1,126 @@
+Script started on Sat 03 Sep 2022 02:13:57 PM MST
+[?1034hsh-4.2$ cat hw0.c
+#include <stdio.h>
+#include <malloc.h>
+#include <unistd.h>
+
+struct ListNode {
+    int val;
+    struct ListNode *next;
+};
+
+typedef struct LinkedList {
+    struct ListNode *head;
+} LinkedList;
+
+void push(struct LinkedList* list, int val) {
+    struct ListNode *node = malloc(sizeof(struct ListNode));
+    // detect if malloc failed
+    if (node == NULL) {
+        // print err
+        puts("\x1b[31mmalloc failed, push failed\x1b[0m");
+        return;
+    }
+    node->val = val;
+    node->next = list->head;
+    list->head = node;
+}
+
+int pop(struct LinkedList* list, char* success) {
+    if (list->head == NULL) {
+        // print err
+        puts("\x1b[31mpop failed, list is empty\x1b[0m");
+        *success = 0;
+        return 0;
+    }
+    struct ListNode *node = list->head;
+    list->head = node->next;
+    int val = node->val;
+    free(node);
+    *success = 1;
+    return val;
+}
+
+int main() {
+    LinkedList head = {NULL};
+    puts("What do you want to do? (Push, pOp, Stop)");
+    while (1) {
+        char input;
+        scanf("%c", &input);
+        // if input is capital letter, convert it to lower case
+        if (input >= 'A' && input <= 'Z') {
+            input += 'a' - 'A';
+        }
+        switch (input) {
+            case 'p': {
+                puts("Enter a number to push");
+                int val;
+                int success = scanf("%d", &val); // NOLINT(cert-err34-c)
+                if (success == 1) {
+                    push(&head, val);
+                } else {
+                    // print err
+                    puts("\x1b[31mscanf failed, push failed\x1b[0m");
+                }
+                break;
+            }
+            case 'o': {
+                char success;
+                int val;
+                val = pop(&head, &success);
+                if (success) {
+                    printf("Popped %d\n", val);
+                }
+                break;
+            }
+            case 's':
+                return 0;
+            default:
+                continue;
+        }
+        puts("What do you want to do? (Push, pOp, Stop)");
+    }
+}
+sh-4.2$ gcc hw0.c -o hw0.out
+sh-4.2$ h[K./hw0.out
+What do you want to do? (Push, pOp, Stop)
+p
+Enter a number to push
+7
+What do you want to do? (Push, pOp, Stop)
+o
+Popped 7
+What do you want to do? (Push, pOp, Stop)
+o
+[31mpop failed, list is empty[0m
+What do you want to do? (Push, pOp, Stop)
+p
+Enter a number to push
+3
+What do you want to do? (Push, pOp, Stop)
+p
+Enter a number to push
+5
+What do you want to do? (Push, pOp, Stop)
+p
+Enter a number to push
+4
+What do you want to do? (Push, pOp, Stop)
+o
+Popped 4
+What do you want to do? (Push, pOp, Stop)
+o
+Popped 5
+What do you want to do? (Push, pOp, Stop)
+o
+Popped 3
+What do you want to do? (Push, pOp, Stop)
+i o
+[31mpop failed, list is empty[0m
+What do you want to do? (Push, pOp, Stop)
+q
+s
+sh-4.2$ exit
+exit
+
+Script done on Sat 03 Sep 2022 02:16:50 PM MST
