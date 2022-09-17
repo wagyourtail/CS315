@@ -45,12 +45,20 @@ void pop(struct LinkedList* list, int x) {
         puts("\x1b[31mpop failed, list is empty\x1b[0m");
         return;
     }
+
     struct ListNode *node = list->head;
+
+    if (list->head->val == x) {
+        list->head = node->next;
+        free(node);
+        return;
+    }
+
     while (node->next != NULL && node->next->val < x) {
         node = node->next;
     }
     if (node->next == NULL || node->next->val != x) {
-        printf("\x1b[31mpop failed, list does not contain %d\x1b[0m", x);
+        printf("\x1b[31mpop failed, list does not contain %d\x1b[0m\n", x);
         return;
     }
 
