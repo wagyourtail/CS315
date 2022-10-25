@@ -17,6 +17,13 @@ bool btContains(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*));
 void btPreOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
 void btInOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
 
+struct PostOrderTraverseStackItem {
+    BinaryTree* node;
+    bool visitedRight;
+};
+
+void btPostOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
+
 struct ListNode {
     void* val;
     struct ListNode* next;
@@ -53,6 +60,9 @@ int main() {
                     puts("");
                     puts("Inorder:");
                     btInOrderTraverse(&head, (void (*)(void*)) printChar);
+                    puts("");
+                    puts("Postorder:");
+                    btPostOrderTraverse(&head, (void (*)(void*)) printChar);
                     puts("\n");
                 } else {
                     // print err
@@ -219,6 +229,54 @@ void btInOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*)) {
                     if (node == NULL) {
                         return;
                     }
+                } else {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+struct PostOrderTraverseStackItem* POTSItem(BinaryTree* node, bool visitedRight) {
+    struct PostOrderTraverseStackItem* item = malloc(sizeof(struct PostOrderTraverseStackItem));
+    item->node = node;
+    item->visitedRight = visitedRight;
+    return item;
+}
+
+void btPostOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*)) {
+    if (*this == NULL) {
+        return;
+    } else {
+        Stack stack = {NULL};
+        struct PostOrderTraverseStackItem* item;
+        BinaryTree* node = *this;
+        while (true) {
+            if (node->left != NULL) {
+                item = POTSItem(node, node->right == NULL);
+                stackPush(&stack, item);
+                node = node->left;
+            } else if (node->right != NULL) {
+                item = POTSItem(node, true);
+                stackPush(&stack, item);
+                node = node->right;
+            } else {
+                visitor(node->val);
+                if (!stackIsEmpty(&stack)) {
+                    item = stackPop(&stack);
+                    while (item->visitedRight && !stackIsEmpty(&stack)) {
+                        visitor(item->node->val);
+                        free(item);
+                        item = stackPop(&stack);
+                    }
+                    if (item->visitedRight) {
+                        visitor(item->node->val);
+                        free(item);
+                        return;
+                    }
+                    node = item->node->right;
+                    item->visitedRight = true;
+                    stackPush(&stack, item);
                 } else {
                     return;
                 }
