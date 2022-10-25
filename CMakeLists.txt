@@ -3,4 +3,4 @@ project(CS315 C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(CS315 grayw7_hw2.c)
+add_executable(CS315 grayw7_hw3.c)
