@@ -1,5 +1,7 @@
-Script started on Wed 02 Nov 2022 05:39:58 PM MST
-[?1034hsh-4.2$ cat grayw7_hw3.c 
+Script started on Wed 02 Nov 2022 05:52:19 PM MST
+[?1034hsh-4.2$ cat grayw7_hw3.
+grayw7_hw3.c    grayw7_hw3.out  
+sh-4.2$ cat grayw7_hw3.c
 #include <stdio.h>
 #include <malloc.h>
 #include <stdbool.h>
@@ -55,7 +57,7 @@ int main() {
                     if (!btInsert(&head, pair, (int (*)(void*, void*)) pairCmp)) {
                         puts("\x1b[31mInsert failed\x1b[0m");
                     } else {
-                        printf("Enter string of up to 10 characters for 'W's data: ");
+                        printf("Enter string of up to 10 characters for '%c's data: ", key);
                         pair->value = malloc(sizeof(char) * 11);
                         while (scanf(" %10s", pair->value) != 1) {
                             puts("\x1b[31mFailed to read string\x1b[0m");
@@ -263,11 +265,11 @@ void* stackPop(Stack* this) {
 
 bool stackIsEmpty(Stack* this) {
     return *this == NULL;
-}sh-4.2$ gcc -o hg[Kw[K[Kgrayw7_hw3.out grayw7_hw3.c 
-sh-4.2$ ./grayw7_hw3.out 
-Enter Choice - (I)nsert, (F)ind, (Q)uit: i
+}sh-4.2$ gcc -o grayw7_hw3.out grayw7_hw3.c 
+sh-4.2$ .gcc -o grayw7_hw3.out grayw7_hw3.c [K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K./grayw7_hw3.out 
+Enter Choice - (I)nsert, (F)ind, (Q)uit: i m i
 Enter character to insert: m
-Enter string of up to 10 characters for 'W's data: moon
+Enter string of up to 10 characters for 'm's data: moon
 
 Preorder:
 m 
@@ -276,7 +278,7 @@ m
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: i
 Enter character to insert: d
-Enter string of up to 10 characters for 'W's data: door
+Enter string of up to 10 characters for 'd's data: door
 
 Preorder:
 m d 
@@ -285,7 +287,7 @@ d m
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: i
 Enter character to insert: g
-Enter string of up to 10 characters for 'W's data: good
+Enter string of up to 10 characters for 'g's data: good
 
 Preorder:
 m d g 
@@ -294,7 +296,7 @@ d g m
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: i
 Enter character to insert: r
-Enter string of up to 10 characters for 'W's data: rejoice
+Enter string of up to 10 characters for 'r's data: rejoice
 
 Preorder:
 m d g r 
@@ -303,7 +305,7 @@ d g m r
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: i
 Enter character to insert: p
-Enter string of up to 10 characters for 'W's data: ploob
+Enter string of up to 10 characters for 'p's data: ploob
 
 Preorder:
 m d g r p 
@@ -312,7 +314,7 @@ d g m p r
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: i
 Enter character to insert: b
-Enter string of up to 10 characters for 'W's data: break
+Enter string of up to 10 characters for 'b's data: bea ak
 
 Preorder:
 m d b g r p 
@@ -321,16 +323,16 @@ b d g m p r
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: i
 Enter character to insert: x
-Enter string of up to 10 characters for 'W's data: xly  ylophone
+Enter string of up to 10 characters for 'x's data: xyh lophone
 
 Preorder:
 m d b g r p x 
 Inorder:
 b d g m p r x 
 
-Enter Choice - (I)nsert, (F)ind, (Q)uit: g f
+Enter Choice - (I)nsert, (F)ind, (Q)uit: f
 Enter character to find: b
-Found the string "break" there
+Found the string "beak" there
 
 Enter Choice - (I)nsert, (F)ind, (Q)uit: f
 Enter character to find: p
@@ -342,8 +344,11 @@ Enter character to find: z
 Enter Choice - (I)nsert, (F)ind, (Q)uit: f
 Enter character to find: t
 [31mNot Found[0m
+Enter Choice - (I)nsert, (F)ind, (Q)uit: f
+Enter character to find: a
+[31mNot Found[0m
 Enter Choice - (I)nsert, (F)ind, (Q)uit: q
-sh-4.2$ exit
+sh-4.2$ er[Kxit
 exit
 
-Script done on Wed 02 Nov 2022 05:42:03 PM MST
+Script done on Wed 02 Nov 2022 05:54:18 PM MST
