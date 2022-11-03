@@ -13,7 +13,7 @@ typedef struct BinaryTree BinaryTree;
 typedef BinaryTree* BinaryTreeHead;
 
 bool btInsert(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*));
-bool btContains(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*));
+void* btRetrieve(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*));
 void btPreOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
 void btInOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
 
@@ -35,8 +35,14 @@ void stackPush(Stack* this, void* val);
 void* stackPop(Stack* this);
 bool stackIsEmpty(Stack* this);
 
-int charCmp(const char* a, const char* b);
-void printChar(const char* c);
+
+struct CharStrPair {
+    char key;
+    char* value;
+};
+
+int pairCmp(const struct CharStrPair* a, const struct CharStrPair* b);
+void printPairKey(const struct CharStrPair* c);
 
 int main() {
     BinaryTreeHead head = {NULL};
@@ -48,26 +54,33 @@ int main() {
             case 'i':
             case 'I': {
                 printf("Enter character to insert: ");
-                char* val = malloc(sizeof(char));
-                int success = scanf(" %c", val);
-                if (success == 1) {
-                    if (!btInsert(&head, val, (int (*)(void*, void*)) charCmp)) {
+                char key;
+                struct CharStrPair* pair = malloc(sizeof(struct CharStrPair));
+                if (scanf(" %c", &key) == 1) {
+                    pair->key = key;
+                    if (!btInsert(&head, pair, (int (*)(void*, void*)) pairCmp)) {
                         puts("\x1b[31mInsert failed\x1b[0m");
+                    } else {
+                        printf("Enter string of up to 10 characters for 'W's data: ");
+                        pair->value = malloc(sizeof(char) * 11);
+                        while (scanf(" %10s", pair->value) != 1) {
+                            puts("\x1b[31mFailed to read string\x1b[0m");
+                        }
                     }
                     puts("");
                     puts("Preorder:");
-                    btPreOrderTraverse(&head, (void (*)(void*)) printChar);
+                    btPreOrderTraverse(&head, (void (*)(void*)) printPairKey);
                     puts("");
                     puts("Inorder:");
-                    btInOrderTraverse(&head, (void (*)(void*)) printChar);
+                    btInOrderTraverse(&head, (void (*)(void*)) printPairKey);
                     puts("");
                     puts("Postorder:");
-                    btPostOrderTraverse(&head, (void (*)(void*)) printChar);
+                    btPostOrderTraverse(&head, (void (*)(void*)) printPairKey);
                     puts("\n");
                 } else {
                     // print err
                     puts("\x1b[31mscanf failed, insert failed\x1b[0m");
-                    free(val);
+                    free(pair);
                 }
                 break;
             }
@@ -77,8 +90,9 @@ int main() {
                 char* val = malloc(sizeof(char));
                 int success = scanf(" %c", val);
                 if (success == 1) {
-                    if (btContains(&head, val, (int (*)(void*, void*)) charCmp)) {
-                        puts("\x1b[32mFound\x1b[0m");
+                    struct CharStrPair* pair = btRetrieve(&head, val, (int (*)(void*, void*)) pairCmp);
+                    if (pair != NULL) {
+                        printf("Found the string \"%s\" there\n\n", pair->value);
                     } else {
                         puts("\x1b[31mNot Found\x1b[0m");
                     }
@@ -101,12 +115,12 @@ int main() {
     } while (1);
 }
 
-int charCmp(const char* a, const char* b) {
-    return *a - *b;
+int pairCmp(const struct CharStrPair* a, const struct CharStrPair* b) {
+    return a->key - b->key;
 }
 
-void printChar(const char* c) {
-    printf("%c ", *c);
+void printPairKey(const struct CharStrPair* c) {
+    printf("%c ", c->key);
 }
 
 bool btInsert(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*)) {
