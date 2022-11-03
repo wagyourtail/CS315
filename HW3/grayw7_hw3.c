@@ -53,7 +53,7 @@ int main() {
                     if (!btInsert(&head, pair, (int (*)(void*, void*)) pairCmp)) {
                         puts("\x1b[31mInsert failed\x1b[0m");
                     } else {
-                        printf("Enter string of up to 10 characters for 'W's data: ");
+                        printf("Enter string of up to 10 characters for '%c's data: ", key);
                         pair->value = malloc(sizeof(char) * 11);
                         while (scanf(" %10s", pair->value) != 1) {
                             puts("\x1b[31mFailed to read string\x1b[0m");
