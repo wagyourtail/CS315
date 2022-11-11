@@ -4,8 +4,6 @@
 
 #define DEBUG
 
-#include "../DataStructures/BinaryTree.h"
-#include "../DataStructures/Heap.h"
 #include "../DataStructures/HuffmanTree.h"
 
 void printCharWithFreq(const char* c, int freq);
