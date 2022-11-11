@@ -25,7 +25,7 @@ int heap_insert(Heap* this, void* val, int(* cmp)(void* a, void* b)) {
     this->data[this->size] = val;
     int i = this->size++;
     while (i > 0) {
-        int parent = (i - 1) >> 1;
+        int parent = i >> 1;
         if (cmp(this->data[i], this->data[parent]) < 0) {
             void* temp = this->data[i];
             this->data[i] = this->data[parent];
@@ -46,8 +46,8 @@ void* heap_remove(Heap* this, int(* cmp)(void*, void*)) {
     this->data[0] = this->data[--this->size];
     int i = 0;
     while (true) {
-        int left = (i << 1);
-        int right = (i << 1) + 1;
+        int left = (i << 1) + 1;
+        int right = (i << 1) + 2;
         if (left >= this->size) {
             break;
         } else if (right >= this->size) {
