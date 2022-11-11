@@ -1,255 +1,73 @@
 #include <stdio.h>
-#include <malloc.h>
 #include <stdbool.h>
+#include <unistd.h>
 
-struct BinaryTree {
-    void* val;
-    struct BinaryTree* left;
-    struct BinaryTree* right;
-};
+#define DEBUG
 
-typedef struct BinaryTree BinaryTree;
+#include "../DataStructures/BinaryTree.h"
+#include "../DataStructures/Heap.h"
+#include "../DataStructures/HuffmanTree.h"
 
-typedef BinaryTree* BinaryTreeHead;
-
-bool btInsert(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*));
-bool btContains(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*));
-void btPreOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
-void btInOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*));
-
-struct ListNode {
-    void* val;
-    struct ListNode* next;
-};
-
-typedef struct ListNode* Stack;
-
-void stackPush(Stack* this, void* val);
-void* stackPop(Stack* this);
-bool stackIsEmpty(Stack* this);
-
-int charCmp(const char* a, const char* b);
-void printChar(const char* c);
+void printCharWithFreq(const char* c, int freq);
+void printHuffmanNode(HuffmanNode* val);
+void printHuffmanNodeVal(struct HuffmanNodeVal* val);
 
 int main() {
-    BinaryTreeHead head = {NULL};
+    HuffmanBuilder* builder = huffman_createBuilder(16);
+    if (builder == NULL) {
+        return 1;
+    }
+    // construct heap
     do {
-        printf("Enter Choice - (I)nsert, (F)ind, (Q)uit: ");
-        char choice;
-        scanf(" %c", &choice);
-        switch (choice) {
-            case 'i':
-            case 'I': {
-                printf("Enter character to insert: ");
-                char key;
-                int success = scanf(" %c", &key);
-                struct CharStrPair pair =
-                if (success == 1) {
-                    if (!btInsert(&head, val, (int (*)(void*, void*)) charCmp)) {
-                        puts("\x1b[31mInsert failed\x1b[0m");
-                    } else {
-
-                        printf("Enter string of up to 10 characters for 'W's data: ")
-                    }
-                    puts("");
-                    puts("Preorder:");
-                    btPreOrderTraverse(&head, (void (*)(void*)) printChar);
-                    puts("");
-                    puts("Inorder:");
-                    btInOrderTraverse(&head, (void (*)(void*)) printChar);
-                    puts("\n");
-                } else {
-                    // print err
-                    puts("\x1b[31mscanf failed, insert failed\x1b[0m");
-                    free(val);
-                }
+        printf("Enter a character (enter a '$' to quit entering characters): ");
+        char* c = malloc(sizeof(char));
+        if (scanf(" %c", c) == 1) {
+            if (*c == '$') {
                 break;
             }
-            case 'f':
-            case 'F': {
-                printf("Enter character to find: ");
-                char* val = malloc(sizeof(char));
-                int success = scanf(" %c", val);
-                if (success == 1) {
-                    if (btContains(&head, val, (int (*)(void*, void*)) charCmp)) {
-                        puts("\x1b[32mFound\x1b[0m");
-                    } else {
-                        puts("\x1b[31mNot Found\x1b[0m");
-                    }
-                } else {
-                    // print err
-                    puts("\x1b[31mscanf failed, find failed\x1b[0m");
-                    free(val);
-                }
-                break;
-            }
-            case 'q':
-            case 'Q': {
-                return 0;
-            }
-            default: {
-                puts("\x1b[31mInvalid choice\x1b[0m");
-            }
-        }
-
-    } while (1);
-}
-
-int charCmp(const char* a, const char* b) {
-    return *a - *b;
-}
-
-void printChar(const char* c) {
-    printf("%c ", *c);
-}
-
-bool btInsert(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*)) {
-    if (*this == NULL) {
-        *this = malloc(sizeof(BinaryTree));
-        (*this)->val = val;
-        (*this)->left = NULL;
-        (*this)->right = NULL;
-        return true;
-    } else {
-        BinaryTree* node = *this;
-        while (true) {
-            int cmpResult = cmp(val, node->val);
-            if (cmpResult == 0) {
-                return false;
-            } else if (cmpResult < 0) {
-                if (node->left == NULL) {
-                    node->left = malloc(sizeof(BinaryTree));
-                    node->left->val = val;
-                    node->left->left = NULL;
-                    node->left->right = NULL;
-                    return true;
-                } else {
-                    node = node->left;
+            int freq;
+            printf("Enter the frequency of the character: ");
+            if (scanf(" %d", &freq)) {
+                if (huffman_addItem(builder, freq, c) != 0) {
+                    free(c);
+                    printf("Error adding item to Huffman builder.");
+                    return -1;
                 }
             } else {
-                if (node->right == NULL) {
-                    node->right = malloc(sizeof(BinaryTree));
-                    node->right->val = val;
-                    node->right->left = NULL;
-                    node->right->right = NULL;
-                    return true;
-                } else {
-                    node = node->right;
-                }
+                printf("Invalid frequency. Try again.");
             }
+        } else {
+            printf("Invalid character. Try again.");
+            free(c);
         }
-    }
+    } while (true);
+
+    HuffmanTree* tree = huffman_buildTree(builder, (void (*)(HuffmanNode*)) printHuffmanNode);
+
+
+    // print in-order and pre-order
+    printf("In-order: \n\n");
+    binaryTree_inOrderTraverse(&tree, (void (*)(void*)) printHuffmanNodeVal);
+    printf(" \n\nPre-order: \n\n");
+    binaryTree_preOrderTraverse(&tree, (void (*)(void*)) printHuffmanNodeVal);
+    printf(" \n\n");
+
+
+    return 0;
 }
 
-bool btContains(BinaryTreeHead* this, void* val, int(* cmp)(void*, void*)) {
-    if (*this == NULL) {
-        return false;
+void printCharWithFreq(const char* c, int freq) {
+    if (c == NULL) {
+        printf("(internal) %5d\n", freq);
     } else {
-        BinaryTree* node = *this;
-        while (true) {
-            int cmpResult = cmp(val, node->val);
-            if (cmpResult == 0) {
-                return true;
-            } else if (cmpResult < 0) {
-                if (node->left == NULL) {
-                    return false;
-                } else {
-                    node = node->left;
-                }
-            } else {
-                if (node->right == NULL) {
-                    return false;
-                } else {
-                    node = node->right;
-                }
-            }
-        }
+        printf("     %c     %5d\n", *c, freq);
     }
 }
 
-void btPreOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*)) {
-    if (*this == NULL) {
-        return;
-    } else {
-        Stack stack = {NULL};
-        BinaryTree* node = *this;
-        while (true) {
-            visitor(node->val);
-            if (node->left != NULL) {
-                stackPush(&stack, node);
-                node = node->left;
-            } else if (node->right != NULL) {
-                node = node->right;
-            } else if (!stackIsEmpty(&stack)) {
-                node = stackPop(&stack);
-                node = node->right;
-                while (node == NULL && !stackIsEmpty(&stack)) {
-                    node = stackPop(&stack);
-                    node = node->right;
-                }
-                if (node == NULL) {
-                    return;
-                }
-            } else {
-                return;
-            }
-        }
-    }
+void printHuffmanNode(HuffmanNode* val) {
+    huffman_printNode(val, (void (*)(void*, int)) printCharWithFreq);
 }
 
-void btInOrderTraverse(BinaryTreeHead* this, void(* visitor)(void*)) {
-    if (*this == NULL) {
-        return;
-    } else {
-        Stack stack = {NULL};
-        BinaryTree* node = *this;
-        while (true) {
-            if (node->left != NULL) {
-                stackPush(&stack, node);
-                node = node->left;
-            } else {
-                visitor(node->val);
-                if (node->right != NULL) {
-                    node = node->right;
-                } else if (!stackIsEmpty(&stack)) {
-                    node = stackPop(&stack);
-                    visitor(node->val);
-                    node = node->right;
-                    while (node == NULL && !stackIsEmpty(&stack)) {
-                        node = stackPop(&stack);
-                        visitor(node->val);
-                        node = node->right;
-                    }
-                    if (node == NULL) {
-                        return;
-                    }
-                } else {
-                    return;
-                }
-            }
-        }
-    }
-}
-
-void stackPush(Stack* this, void* val) {
-    struct ListNode* item = malloc(sizeof(struct ListNode));
-    item->val = val;
-    item->next = *this;
-    *this = item;
-}
-
-void* stackPop(Stack* this) {
-    if (*this == NULL) {
-        return NULL;
-    } else {
-        struct ListNode* item = *this;
-        *this = item->next;
-        void* val = item->val;
-        free(item);
-        return val;
-    }
-}
-
-bool stackIsEmpty(Stack* this) {
-    return *this == NULL;
+void printHuffmanNodeVal(struct HuffmanNodeVal* val) {
+    huffman_printNodeVal(val, (void (*)(void*, int)) printCharWithFreq);
 }

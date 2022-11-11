@@ -1,7 +1,23 @@
 cmake_minimum_required(VERSION 3.23)
-project(CS315 C)
-
 set(CMAKE_C_STANDARD 23)
+
+project(CS315_HW0 C)
+project(CS315_HW1 C)
+project(CS315_HW2 C)
+project(CS315_HW3 C)
+project(CS315_HW3_extra C)
+project(CS315_HW4 C)
+project(CS315_DS C)
+
+add_executable(CS315_DS
+        DataStructures/BinaryTree.c
+        DataStructures/Heap.c
+        DataStructures/HuffmanTree.c
+        DataStructures/LinkedList.c
+        DataStructures/Queue.c
+        DataStructures/Stack.c
+)
+
 
 add_executable(CS315_HW0 HW0/grayw7_hw0.c)
 add_executable(CS315_HW1 HW1/grayw7_hw1.c)
