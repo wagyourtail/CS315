@@ -10,6 +10,9 @@ void printCharWithFreq(const char* c, int freq);
 void printHuffmanNode(HuffmanNode* val);
 void printHuffmanNodeVal(struct HuffmanNodeVal* val);
 
+void printCharWithCode(const char* c, char* code);
+void printHuffmanCode(HuffmanNode* node);
+
 int main() {
     HuffmanBuilder* builder = huffman_createBuilder(16);
     if (builder == NULL) {
@@ -50,6 +53,8 @@ int main() {
     binaryTree_preOrderTraverse(&tree, (void (*)(void*)) printHuffmanNodeVal);
     printf(" \n\n");
 
+    printf("Huffman codes: \n\n");
+    printHuffmanCode(tree);
 
     return 0;
 }
@@ -68,4 +73,12 @@ void printHuffmanNode(HuffmanNode* val) {
 
 void printHuffmanNodeVal(struct HuffmanNodeVal* val) {
     huffman_printNodeVal(val, (void (*)(void*, int)) printCharWithFreq);
+}
+
+void printCharWithCode(const char* c, char* code) {
+    printf("%c       %s\n", *c, code);
+}
+
+void printHuffmanCode(HuffmanNode* node) {
+    huffman_printCode(node, (void (*)(void*, char*)) printCharWithCode);
 }

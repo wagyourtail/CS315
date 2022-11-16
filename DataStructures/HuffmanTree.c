@@ -1,5 +1,7 @@
 #include "HuffmanTree.h"
 
+#include <string.h>
+
 int huffman_nodeCmp(HuffmanNode* a, HuffmanNode* b) {
     return ((struct HuffmanNodeVal*) a->val)->freq - ((struct HuffmanNodeVal*) b->val)->freq;
 }
@@ -33,9 +35,9 @@ int huffman_addItem(HuffmanBuilder* builder, int freq, void* item) {
     return rv;
 }
 
-HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* print)(HuffmanNode* node)) {
+HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(HuffmanNode* node)) {
 #ifdef DEBUG
-    heap_debugPrint(builder, print);
+    heap_debugPrint(builder, debugPrint);
 #endif
 
     while (builder->size > 1) {
@@ -54,7 +56,7 @@ HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* print)(HuffmanNod
         val->freq = ((struct HuffmanNodeVal*) left->val)->freq + ((struct HuffmanNodeVal*) right->val)->freq;
 
 #ifdef DEBUG
-        heap_debugPrint(builder, print);
+        heap_debugPrint(builder, debugPrint);
 #endif
         combined->left = left;
         combined->right = right;
@@ -62,9 +64,44 @@ HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* print)(HuffmanNod
         heap_insert(builder, combined, (int (*)(void*, void*)) huffman_nodeCmp);
 
 #ifdef DEBUG
-        heap_debugPrint(builder, print);
+        heap_debugPrint(builder, debugPrint);
 #endif
     }
 
-    return heap_remove(builder, (int (*)(void*, void*)) huffman_nodeCmp);
+    HuffmanNode* head = heap_remove(builder, (int (*)(void*, void*)) huffman_nodeCmp);
+    return head;
+}
+
+int huffman_traverseInternal(HuffmanNode* tree, char* code, void(* visitor)(void* item, char* code)) {
+    if (tree->left == NULL && tree->right == NULL) {
+        visitor(((struct HuffmanNodeVal*) tree->val)->item, code);
+        return SUCCESS;
+    } else {
+        char* innerCode = malloc(strlen(code) + 2);
+        if (innerCode == NULL) return FAILURE;
+        strcpy(innerCode, code);
+        if (tree->left != NULL) {
+            strcat(innerCode, "0");
+            int rv = huffman_traverseInternal(tree->left, innerCode, visitor);
+            if (rv != SUCCESS) {
+                free(innerCode);
+                return rv;
+            }
+        }
+        if (tree->right != NULL) {
+            strcpy(innerCode, code);
+            strcat(innerCode, "1");
+            int rv = huffman_traverseInternal(tree->right, innerCode, visitor);
+            if (rv != SUCCESS) {
+                free(innerCode);
+                return rv;
+            }
+        }
+        free(innerCode);
+    }
+}
+
+int huffman_printCode(HuffmanTree* tree, void(* visitor)(void* item, char* code)) {
+    if (tree == NULL) return SUCCESS;
+    return huffman_traverseInternal(tree, "", visitor);
 }

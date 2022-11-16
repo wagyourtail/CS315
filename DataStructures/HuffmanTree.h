@@ -18,7 +18,8 @@ void huffman_printNode(HuffmanNode* val, void(* print)(void* item, int freq));
 void huffman_printNodeVal(struct HuffmanNodeVal* val, void(* print)(void* item, int freq));
 HuffmanBuilder* huffman_createBuilder(int initialCapacity);
 int huffman_addItem(HuffmanBuilder* builder, int freq, void* item);
-HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* print)(HuffmanNode* node));
+HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(HuffmanNode* node));
+int huffman_printCode(HuffmanTree* tree, void(* visitor)(void* item, char* code));
 
 #include "HuffmanTree.c"
 
