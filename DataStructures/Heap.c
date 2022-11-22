@@ -80,12 +80,13 @@ int heap_resize(Heap* this, int capacity) {
         this->capacity = capacity;
         this->data = newData;
     }
+    return SUCCESS;
 }
 
 void heap_debugPrint(Heap* this, void(* print)(void* val)) {
     printf("\n\n[debug] Heap size: %d Heap capacity: %d Heap data:\n", this->size, this->capacity);
-
-    for (int i = 0; i < this->size; i++) {
+    int i;
+    for (i = 0; i < this->size; i++) {
         print(this->data[i]);
     }
 

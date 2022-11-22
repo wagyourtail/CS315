@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-#define DEBUG
+//#define DEBUG
 
 #include "../DataStructures/HuffmanTree.h"
 

@@ -37,7 +37,7 @@ int huffman_addItem(HuffmanBuilder* builder, int freq, void* item) {
 
 HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(HuffmanNode* node)) {
 #ifdef DEBUG
-    heap_debugPrint(builder, debugPrint);
+    heap_debugPrint(builder, (void (*)(void *))debugPrint);
 #endif
 
     while (builder->size > 1) {
@@ -56,7 +56,7 @@ HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(Huffm
         val->freq = ((struct HuffmanNodeVal*) left->val)->freq + ((struct HuffmanNodeVal*) right->val)->freq;
 
 #ifdef DEBUG
-        heap_debugPrint(builder, debugPrint);
+        heap_debugPrint(builder, (void (*)(void *))debugPrint);
 #endif
         combined->left = left;
         combined->right = right;
@@ -64,7 +64,7 @@ HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(Huffm
         heap_insert(builder, combined, (int (*)(void*, void*)) huffman_nodeCmp);
 
 #ifdef DEBUG
-        heap_debugPrint(builder, debugPrint);
+        heap_debugPrint(builder, (void (*)(void *))debugPrint);
 #endif
     }
 
@@ -99,6 +99,7 @@ int huffman_traverseInternal(HuffmanNode* tree, char* code, void(* visitor)(void
         }
         free(innerCode);
     }
+    return SUCCESS;
 }
 
 int huffman_printCode(HuffmanTree* tree, void(* visitor)(void* item, char* code)) {
