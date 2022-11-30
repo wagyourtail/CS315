@@ -1,0 +1,762 @@
+Script started on Wed 30 Nov 2022 03:03:51 PM MST
+[?1034hsh-4.2$ I'm not re-doing that cat'ing^C
+sh-4.2$ cat grayw7_hw4log.txt 
+Script started on Mon 21 Nov 2022 07:15:27 PM MST
+[?1034hsh-4.2$ cat ../DataStructures/Status.h 
+#ifndef STATUS
+#define STATUS
+
+#define SUCCESS 0
+#define DUPLICATE 1
+#define FAILURE -1
+
+#endifsh-4.2$ cat ../DataStructures/LinkedList.h
+#ifndef LINKED_LIST
+#define LINKED_LIST
+
+#include <stdbool.h>
+
+struct ListNode {
+    void* val;
+    struct ListNode* next;
+};
+
+typedef struct ListNode* LinkedList;
+
+#include "LinkedList.c"
+
+#endifsh-4.2$ cat ../DataStructures/LinkedList.h[Kc
+#include "LinkedList.h"sh-4.2$ cat ../DataStructures/LinkedList.c[K[K[K[K[K[K[K[K[K[K[K[KStack.h
+#ifndef STACK
+#define STACK
+
+#include "LinkedList.h"
+
+#include <stdbool.h>
+
+typedef LinkedList Stack;
+
+int stack_push(Stack* stack, void* val);
+void* stack_pop(Stack* stack);
+bool stack_isEmpty(Stack* stack);
+
+#include "Stack.c"
+
+#endifsh-4.2$ cat ../DataStructures/Stack.h[Kc
+#include "Stack.h"
+#include "Status.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+
+int stack_push(Stack* stack, void* val) {
+    struct ListNode* node = malloc(sizeof(struct ListNode));
+    if (node == NULL) {
+        return FAILURE;
+    } else {
+        node->val = val;
+        node->next = *stack;
+        *stack = node;
+        return SUCCESS;
+    }
+}
+
+void* stack_pop(Stack* stack) {
+    if (*stack == NULL) {
+        return NULL;
+    } else {
+        struct ListNode* node = *stack;
+        *stack = node->next;
+        void* val = node->val;
+        free(node);
+        return val;
+    }
+}
+
+bool stack_isEmpty(Stack* stack) {
+    return *stack == NULL;
+}sh-4.2$ [Ksh-4.2$ cat ../DataStructures/Stack.c[K[K[K[K[K[K[KBinaryTree.h
+#ifndef BINARY_TREE
+#define BINARY_TREE
+
+#include <stdbool.h>
+
+struct BinaryTree {
+    void* val;
+    struct BinaryTree* left;
+    struct BinaryTree* right;
+};
+
+typedef struct BinaryTree BinaryTree;
+typedef BinaryTree* BinaryTreeHead;
+
+int binaryTree_insert(BinaryTreeHead* this, void* val, int(* cmp)(void* a, void* b));
+bool binaryTree_contains(BinaryTreeHead* this, void* val, int(* cmp)(void* a, void* b));
+void binaryTree_preOrderTraverse(BinaryTreeHead* this, void(* visitor)(void* value));
+void binaryTree_inOrderTraverse(BinaryTreeHead* this, void(* visitor)(void* value));
+void binaryTree_postOrderTraverse(BinaryTreeHead* this, void(* visitor)(void* value));
+
+#include "BinaryTree.c"
+
+#endifsh-4.2$ cat ../DataStructures/BinaryTree.h[Kc
+#include "BinaryTree.h"
+#include "Stack.h"
+#include "Status.h"
+
+#include <stdlib.h>
+
+
+int binaryTree_insert(BinaryTreeHead* this, void* val, int(* cmp)(void* a, void* b)) {
+    if (*this == NULL) {
+        *this = malloc(sizeof(BinaryTree));
+        if (*this == NULL) {
+            return FAILURE;
+        }
+        (*this)->val = val;
+        (*this)->left = NULL;
+        (*this)->right = NULL;
+        return SUCCESS;
+    } else {
+        BinaryTree* node = *this;
+        while (true) {
+            int cmpResult = cmp(val, node->val);
+            if (cmpResult == 0) {
+                return DUPLICATE;
+            } else if (cmpResult < 0) {
+                if (node->left == NULL) {
+                    node->left = malloc(sizeof(BinaryTree));
+                    if (node->left == NULL) {
+                        return FAILURE;
+                    }
+                    node->left->val = val;
+                    node->left->left = NULL;
+                    node->left->right = NULL;
+                    return SUCCESS;
+                } else {
+                    node = node->left;
+                }
+            } else {
+                if (node->right == NULL) {
+                    node->right = malloc(sizeof(BinaryTree));
+                    if (node->right == NULL) {
+                        return FAILURE;
+                    }
+                    node->right->val = val;
+                    node->right->left = NULL;
+                    node->right->right = NULL;
+                    return SUCCESS;
+                } else {
+                    node = node->right;
+                }
+            }
+        }
+    }
+}
+
+bool binaryTree_contains(BinaryTreeHead* this, void* val, int(* cmp)(void* a, void* b)) {
+    if (*this == NULL) {
+        return false;
+    } else {
+        BinaryTree* node = *this;
+        while (true) {
+            int cmpResult = cmp(val, node->val);
+            if (cmpResult == 0) {
+                return true;
+            } else if (cmpResult < 0) {
+                if (node->left == NULL) {
+                    return false;
+                } else {
+                    node = node->left;
+                }
+            } else {
+                if (node->right == NULL) {
+                    return false;
+                } else {
+                    node = node->right;
+                }
+            }
+        }
+    }
+}
+
+void binaryTree_preOrderTraverse(BinaryTreeHead* this, void(* visitor)(void* value)) {
+    if (*this == NULL) {
+        return;
+    } else {
+        Stack stack = {NULL};
+        BinaryTree* node = *this;
+        while (true) {
+            visitor(node->val);
+            if (node->left != NULL) {
+                stack_push(&stack, node);
+                node = node->left;
+            } else if (node->right != NULL) {
+                node = node->right;
+            } else if (!stack_isEmpty(&stack)) {
+                node = stack_pop(&stack);
+                node = node->right;
+                while (node == NULL && !stack_isEmpty(&stack)) {
+                    node = stack_pop(&stack);
+                    node = node->right;
+                }
+                if (node == NULL) {
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+    }
+}
+
+void binaryTree_inOrderTraverse(BinaryTreeHead* this, void(* visitor)(void* value)) {
+    if (*this == NULL) {
+        return;
+    } else {
+        Stack stack = {NULL};
+        BinaryTree* node = *this;
+        while (true) {
+            if (node->left != NULL) {
+                stack_push(&stack, node);
+                node = node->left;
+            } else {
+                visitor(node->val);
+                if (node->right != NULL) {
+                    node = node->right;
+                } else if (!stack_isEmpty(&stack)) {
+                    node = stack_pop(&stack);
+                    visitor(node->val);
+                    node = node->right;
+                    while (node == NULL && !stack_isEmpty(&stack)) {
+                        node = stack_pop(&stack);
+                        visitor(node->val);
+                        node = node->right;
+                    }
+                    if (node == NULL) {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+struct PostOrderTraverseStackItem {
+    BinaryTree* node;
+    bool visitedRight;
+};
+
+struct PostOrderTraverseStackItem* POTSItem(BinaryTree* node, bool visitedRight) {
+    struct PostOrderTraverseStackItem* item = malloc(sizeof(struct PostOrderTraverseStackItem));
+    item->node = node;
+    item->visitedRight = visitedRight;
+    return item;
+}
+
+void binaryTree_postOrderTraverse(BinaryTreeHead* this, void(* visitor)(void* value)) {
+    if (*this == NULL) {
+        return;
+    } else {
+        Stack stack = {NULL};
+        struct PostOrderTraverseStackItem* item;
+        BinaryTree* node = *this;
+        while (true) {
+            if (node->left != NULL) {
+                item = POTSItem(node, node->right == NULL);
+                stack_push(&stack, item);
+                node = node->left;
+            } else if (node->right != NULL) {
+                item = POTSItem(node, true);
+                stack_push(&stack, item);
+                node = node->right;
+            } else {
+                visitor(node->val);
+                if (!stack_isEmpty(&stack)) {
+                    item = stack_pop(&stack);
+                    while (item->visitedRight && !stack_isEmpty(&stack)) {
+                        visitor(item->node->val);
+                        free(item);
+                        item = stack_pop(&stack);
+                    }
+                    if (item->visitedRight) {
+                        visitor(item->node->val);
+                        free(item);
+                        return;
+                    }
+                    node = item->node->right;
+                    item->visitedRight = true;
+                    stack_push(&stack, item);
+                } else {
+                    return;
+                }
+            }
+        }
+    }
+}sh-4.2$ cat ../DataStructures/BinaryTree.c[K[K[K[K[K[K[K[K[K[K[K[KHeap.h
+#ifndef HEAP
+#define HEAP
+
+struct Heap {
+    void** data;
+    int size;
+    int capacity;
+};
+
+typedef struct Heap Heap;
+
+Heap* heap_create(int capacity);
+int heap_resize(Heap* this, int capacity);
+int heap_insert(Heap* this, void* val, int(* cmp)(void* a, void* b));
+void* heap_remove(Heap* this, int(* cmp)(void*, void*));
+
+void heap_debugPrint(Heap* this, void(* print)(void* val));
+
+#include "Heap.c"
+
+#endifsh-4.2$ cat ../DataStructures/Heap.h[Kc
+#include "Heap.h"
+#include "Status.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+
+
+Heap* heap_create(int capacity) {
+    Heap* heap = malloc(sizeof(Heap));
+    heap->data = malloc(sizeof(void*) * capacity);
+    heap->size = 0;
+    heap->capacity = capacity;
+    if (heap->data == NULL) {
+        return NULL;
+    }
+    return heap;
+}
+
+int heap_insert(Heap* this, void* val, int(* cmp)(void* a, void* b)) {
+    if (this->size == this->capacity) {
+        if (heap_resize(this, this->capacity << 1) == FAILURE) {
+            return FAILURE;
+        }
+    }
+    this->data[this->size] = val;
+    int i = this->size++;
+    while (i > 0) {
+        int parent = ((i + 1) >> 1) - 1;
+        if (cmp(this->data[i], this->data[parent]) < 0) {
+            void* temp = this->data[i];
+            this->data[i] = this->data[parent];
+            this->data[parent] = temp;
+            i = parent;
+        } else {
+            break;
+        }
+    }
+    return SUCCESS;
+}
+
+void* heap_remove(Heap* this, int(* cmp)(void*, void*)) {
+    if (this->size == 0) {
+        return NULL;
+    }
+    void* val = this->data[0];
+    this->data[0] = this->data[--this->size];
+    int i = 0;
+    while (true) {
+        int left = (i << 1) + 1;
+        int right = (i << 1) + 2;
+        if (left >= this->size) {
+            break;
+        } else if (right >= this->size) {
+            if (cmp(this->data[i], this->data[left]) > 0) {
+                void* temp = this->data[i];
+                this->data[i] = this->data[left];
+                this->data[left] = temp;
+            }
+            break;
+        } else {
+            int min = cmp(this->data[left], this->data[right]) < 0 ? left : right;
+            if (cmp(this->data[i], this->data[min]) > 0) {
+                void* temp = this->data[i];
+                this->data[i] = this->data[min];
+                this->data[min] = temp;
+                i = min;
+            } else {
+                break;
+            }
+        }
+    }
+    return val;
+}
+
+int heap_resize(Heap* this, int capacity) {
+    void** newData = realloc(this->data, capacity * sizeof(void*));
+    if (newData == NULL) {
+        return FAILURE;
+    } else {
+        this->capacity = capacity;
+        this->data = newData;
+    }
+    return SUCCESS;
+}
+
+void heap_debugPrint(Heap* this, void(* print)(void* val)) {
+    printf("\n\n[debug] Heap size: %d Heap capacity: %d Heap data:\n", this->size, this->capacity);
+    int i;
+    for (i = 0; i < this->size; i++) {
+        print(this->data[i]);
+    }
+
+    printf("\n\n");
+}sh-4.2$ cat ../DataStructures/Heap.c[K[K[K[K[KuffmanTree.h
+#ifndef HUFFMAN_TREE
+#define HUFFMAN_TREE
+
+#include "BinaryTree.h"
+#include "Heap.h"
+
+struct HuffmanNodeVal {
+    int freq;
+    void* item;
+};
+
+typedef BinaryTree HuffmanNode;
+typedef BinaryTree HuffmanTree;
+typedef Heap HuffmanBuilder;
+
+int huffman_nodeCmp(HuffmanNode* a, HuffmanNode* b);
+void huffman_printNode(HuffmanNode* val, void(* print)(void* item, int freq));
+void huffman_printNodeVal(struct HuffmanNodeVal* val, void(* print)(void* item, int freq));
+HuffmanBuilder* huffman_createBuilder(int initialCapacity);
+int huffman_addItem(HuffmanBuilder* builder, int freq, void* item);
+HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(HuffmanNode* node));
+int huffman_printCode(HuffmanTree* tree, void(* visitor)(void* item, char* code));
+
+#include "HuffmanTree.c"
+
+#endifsh-4.2$ .cat ../DataStructures/HuffmanTree.h[Kc
+#include "HuffmanTree.h"
+
+#include <string.h>
+
+int huffman_nodeCmp(HuffmanNode* a, HuffmanNode* b) {
+    return ((struct HuffmanNodeVal*) a->val)->freq - ((struct HuffmanNodeVal*) b->val)->freq;
+}
+
+void huffman_printNode(HuffmanNode* val, void(* print)(void* item, int freq)) {
+    huffman_printNodeVal(val->val, print);
+}
+
+void huffman_printNodeVal(struct HuffmanNodeVal* val, void(* print)(void* item, int freq)) {
+    print(val->item, val->freq);
+}
+
+HuffmanBuilder* huffman_createBuilder(int initialCapacity) {
+    return heap_create(initialCapacity);
+}
+
+int huffman_addItem(HuffmanBuilder* builder, int freq, void* item) {
+    HuffmanNode* node = malloc(sizeof(HuffmanNode));
+    struct HuffmanNodeVal* val = malloc(sizeof(struct HuffmanNodeVal));
+    if (node == NULL || val == NULL) return FAILURE;
+    node->val = val;
+    val->item = item;
+    val->freq = freq;
+    node->right = NULL;
+    node->left = NULL;
+    int rv = heap_insert(builder, node, (int (*)(void*, void*)) huffman_nodeCmp);
+    if (rv != SUCCESS) {
+        free(val);
+        free(node);
+    }
+    return rv;
+}
+
+HuffmanTree* huffman_buildTree(HuffmanBuilder* builder, void(* debugPrint)(HuffmanNode* node)) {
+#ifdef DEBUG
+    heap_debugPrint(builder, (void (*)(void *))debugPrint);
+#endif
+
+    while (builder->size > 1) {
+        HuffmanNode* left = heap_remove(builder, (int (*)(void*, void*)) huffman_nodeCmp);
+        HuffmanNode* right = heap_remove(builder, (int (*)(void*, void*)) huffman_nodeCmp);
+        HuffmanNode* combined = malloc(sizeof(HuffmanNode));
+        struct HuffmanNodeVal* val = malloc(sizeof(struct HuffmanNodeVal));
+        if (combined == NULL || val == NULL) {
+            heap_insert(builder, left, (int (*)(void*, void*)) huffman_nodeCmp);
+            heap_insert(builder, right, (int (*)(void*, void*)) huffman_nodeCmp);
+            return NULL;
+        }
+
+        combined->val = val;
+        val->item = NULL;
+        val->freq = ((struct HuffmanNodeVal*) left->val)->freq + ((struct HuffmanNodeVal*) right->val)->freq;
+
+#ifdef DEBUG
+        heap_debugPrint(builder, (void (*)(void *))debugPrint);
+#endif
+        combined->left = left;
+        combined->right = right;
+
+        heap_insert(builder, combined, (int (*)(void*, void*)) huffman_nodeCmp);
+
+#ifdef DEBUG
+        heap_debugPrint(builder, (void (*)(void *))debugPrint);
+#endif
+    }
+
+    HuffmanNode* head = heap_remove(builder, (int (*)(void*, void*)) huffman_nodeCmp);
+    return head;
+}
+
+int huffman_traverseInternal(HuffmanNode* tree, char* code, void(* visitor)(void* item, char* code)) {
+    if (tree->left == NULL && tree->right == NULL) {
+        visitor(((struct HuffmanNodeVal*) tree->val)->item, code);
+        return SUCCESS;
+    } else {
+        char* innerCode = malloc(strlen(code) + 2);
+        if (innerCode == NULL) return FAILURE;
+        strcpy(innerCode, code);
+        if (tree->left != NULL) {
+            strcat(innerCode, "0");
+            int rv = huffman_traverseInternal(tree->left, innerCode, visitor);
+            if (rv != SUCCESS) {
+                free(innerCode);
+                return rv;
+            }
+        }
+        if (tree->right != NULL) {
+            strcpy(innerCode, code);
+            strcat(innerCode, "1");
+            int rv = huffman_traverseInternal(tree->right, innerCode, visitor);
+            if (rv != SUCCESS) {
+                free(innerCode);
+                return rv;
+            }
+        }
+        free(innerCode);
+    }
+    return SUCCESS;
+}
+
+int huffman_printCode(HuffmanTree* tree, void(* visitor)(void* item, char* code)) {
+    if (tree == NULL) return SUCCESS;
+    return huffman_traverseInternal(tree, "", visitor);
+}sh-4.2$ cat grayw7_hw4.c 
+#include <stdio.h>
+#include <stdbool.h>
+#include <unistd.h>
+
+//#define DEBUG
+
+#include "../DataStructures/HuffmanTree.h"
+
+void printCharWithFreq(const char* c, int freq);
+void printHuffmanNode(HuffmanNode* val);
+void printHuffmanNodeVal(struct HuffmanNodeVal* val);
+
+void printCharWithCode(const char* c, char* code);
+void printHuffmanCode(HuffmanNode* node);
+
+int main() {
+    HuffmanBuilder* builder = huffman_createBuilder(16);
+    if (builder == NULL) {
+        return 1;
+    }
+    // construct heap
+    do {
+        printf("Enter a character (enter a '$' to quit entering characters): ");
+        char* c = malloc(sizeof(char));
+        if (scanf(" %c", c) == 1) {
+            if (*c == '$') {
+                break;
+            }
+            int freq;
+            printf("Enter the frequency of the character: ");
+            if (scanf(" %d", &freq)) {
+                if (huffman_addItem(builder, freq, c) != 0) {
+                    free(c);
+                    printf("Error adding item to Huffman builder.");
+                    return -1;
+                }
+            } else {
+                printf("Invalid frequency. Try again.");
+            }
+        } else {
+            printf("Invalid character. Try again.");
+            free(c);
+        }
+    } while (true);
+
+    HuffmanTree* tree = huffman_buildTree(builder, (void (*)(HuffmanNode*)) printHuffmanNode);
+
+
+    // print in-order and pre-order
+    printf("In-order: \n\n");
+    binaryTree_inOrderTraverse(&tree, (void (*)(void*)) printHuffmanNodeVal);
+    printf(" \n\nPre-order: \n\n");
+    binaryTree_preOrderTraverse(&tree, (void (*)(void*)) printHuffmanNodeVal);
+    printf(" \n\n");
+
+    printf("Huffman codes: \n\n");
+    printHuffmanCode(tree);
+
+    return 0;
+}
+
+void printCharWithFreq(const char* c, int freq) {
+    if (c == NULL) {
+        printf("(internal) %5d\n", freq);
+    } else {
+        printf("     %c     %5d\n", *c, freq);
+    }
+}
+
+void printHuffmanNode(HuffmanNode* val) {
+    huffman_printNode(val, (void (*)(void*, int)) printCharWithFreq);
+}
+
+void printHuffmanNodeVal(struct HuffmanNodeVal* val) {
+    huffman_printNodeVal(val, (void (*)(void*, int)) printCharWithFreq);
+}
+
+void printCharWithCode(const char* c, char* code) {
+    printf("%c       %s\n", *c, code);
+}
+
+void printHuffmanCode(HuffmanNode* node) {
+    huffman_printCode(node, (void (*)(void*, char*)) printCharWithCode);
+}sh-4.2$ gcc -o grayw7_hw4.out grayw7_hw4.c 
+sh-4.2$ ./grayw7_hw4.out 
+Enter a character (enter a '$' to quit entering characters): A
+Enter the frequency of the character: 1
+Enter a character (enter a '$' to quit entering characters): B
+Enter the frequency of the character: 2
+Enter a character (enter a '$' to quit entering characters): c C
+Enter the frequency of the character: 4
+Enter a character (enter a '$' to quit entering characters): D
+Enter the frequency of the character: 8
+Enter a character (enter a '$' to quit entering characters): E
+Enter the frequency of the character: 5
+Enter a character (enter a '$' to quit entering characters): F
+Enter the frequency of the character: 6
+Enter a character (enter a '$' to quit entering characters): G
+Enter the frequency of the character: 9
+Enter a character (enter a '$' to quit entering characters): H
+Enter the frequency of the character: 10
+Enter a character (enter a '$' to quit entering characters): $
+In-order: 
+
+     G         9
+(internal)    19
+     H        10
+(internal)    45
+     E         5
+(internal)    11
+     F         6
+(internal)    26
+     A         1
+(internal)     3
+     B         2
+(internal)     7
+     C         4
+(internal)    15
+     D         8
+ 
+
+Pre-order: 
+
+(internal)    45
+(internal)    19
+     G         9
+     H        10
+(internal)    26
+(internal)    11
+     E         5
+     F         6
+(internal)    15
+(internal)     7
+(internal)     3
+     A         1
+     B         2
+     C         4
+     D         8
+ 
+
+Huffman codes: 
+
+G       00
+H       01
+E       100
+F       101
+A       11000
+B       11001
+C       1101
+D       111
+sh-4.2$ exit
+exit
+
+Script done on Mon 21 Nov 2022 07:18:49 PM MST
+sh-4.2$ 
+sh-4.2$ 
+sh-4.2$ l[Kok here's the fixed one^C
+sh-4.2$ gcc grayw7_hw4.[K
+grayw7_hw4.c           grayw7_hw4log_new.txt  grayw7_hw4log.txt      grayw7_hw4_old.c       grayw7_hw4.out         
+sh-4.2$ gcc grayw7_hw4.c -o grayw7_hw4.out
+sh-4.2$ [Ksh-4.2$ [Ksh-4.2$ ./grayw7_hw4.out 
+Enter a character (enter a '$' to quit entering characters): g
+Enter the frequency of the character: 56
+Enter a character (enter a '$' to quit entering characters): b
+Enter the frequency of the character: 15
+Enter a character (enter a '$' to quit entering characters): c
+Enter the frequency of the character: 25
+Enter a character (enter a '$' to quit entering characters): k
+Enter the frequency of the character: 5
+Enter a character (enter a '$' to quit entering characters): a
+Enter the frequency of the character: 17
+Enter a character (enter a '$' to quit entering characters): d
+Enter the frequency of the character: 18
+Enter a character (enter a '$' to quit entering characters): % $
+In-order: 
+
+     g        56
+(internal)   136
+     a        17
+(internal)    35
+     d        18
+(internal)    80
+     k         5
+(internal)    20
+     b        15
+(internal)    45
+     c        25
+ 
+
+Pre-order: 
+
+(internal)   136
+     g        56
+(internal)    80
+(internal)    35
+     a        17
+     d        18
+(internal)    45
+(internal)    20
+     k         5
+     b        15
+     c        25
+ 
+
+Huffman codes: 
+
+g       0
+a       100
+d       101
+k       1100
+b       1101
+c       111
+sh-4.2$ exit
+
+Script done on Wed 30 Nov 2022 03:05:38 PM MST
